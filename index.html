@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Millyanne Wanjala — Backend Engineer</title>
+
+  <!-- Tailwind CDN — lets us reuse the exact utility classes from the React version -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { darkMode: 'class' };
+  </script>
+
+  <!-- Font Awesome for icons (same icon set as react-icons/fa) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <style>
+    html { scroll-behavior: smooth; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+  </style>
+</head>
+<!-- ============================================
+     Uses the same CSS variables already defined in :root
+     ============================================ -->
+
+<button
+  id="chat-toggle"
+  onclick="document.getElementById('chat-panel').classList.toggle('hidden')"
+  aria-label="Open chat about Millyanne"
+  class="fixed bottom-6 right-6 z-50 flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-5 py-3 rounded-full shadow-lg transition-colors"
+>
+  <i class="fa-solid fa-comment-dots"></i>
+  <span class="font-medium text-sm">Ask about Millyanne</span>
+</button>
+
+<div
+  id="chat-panel"
+  role="dialog"
+  aria-label="Chat with Millyanne's AI assistant"
+  class="hidden fixed bottom-24 right-6 z-50 w-[360px] max-w-[calc(100vw-2rem)] h-[480px] max-h-[calc(100vh-8rem)] bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-2xl flex flex-col overflow-hidden"
+>
+  <!-- Header -->
+  <div class="bg-purple-600 text-white px-5 py-4 flex items-center justify-between flex-shrink-0">
+    <div>
+      <div class="font-semibold text-sm">Ask about Millyanne</div>
+      <div class="text-xs opacity-85">Answers from her real projects & skills</div>
+    </div>
+    <button
+      onclick="document.getElementById('chat-panel').classList.add('hidden')"
+      aria-label="Close chat"
+      class="text-white/85 hover:text-white text-lg leading-none px-1"
+    >✕</button>
+  </div>
+
+  <!-- Messages -->
+  <div id="chat-messages" class="flex-1 overflow-y-auto p-4 flex flex-col gap-2.5 bg-white dark:bg-gray-900">
+    <div class="chat-msg-bot max-w-[85%] self-start bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 rounded-2xl rounded-bl-sm px-3.5 py-2.5 text-sm leading-relaxed">
+      Hi! I can answer questions about Millyanne's projects, skills, and experience. Try one of the suggestions below, or type your own question.
+    </div>
+  </div>
+
+  <!-- Suggestions -->
+  <div id="chat-suggestions" class="px-4 pb-3 flex flex-wrap gap-2 flex-shrink-0">
+    <button class="chat-suggestion text-xs font-medium bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800 rounded-full px-3 py-1.5 hover:bg-purple-100 dark:hover:bg-purple-900/50 transition-colors">
+      What backend skills does she have?
+    </button>
+    <button class="chat-suggestion text-xs font-medium bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800 rounded-full px-3 py-1.5 hover:bg-purple-100 dark:hover:bg-purple-900/50 transition-colors">
+      Tell me about Trackr
+    </button>
+    <button class="chat-suggestion text-xs font-medium bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800 rounded-full px-3 py-1.5 hover:bg-purple-100 dark:hover:bg-purple-900/50 transition-colors">
+      Is she open to opportunities?
+    </button>
+  </div>
+
+  <!-- Input -->
+  <div class="flex gap-2 px-4 py-3 border-t border-gray-200 dark:border-gray-700 flex-shrink-0">
+    <input
+      id="chat-input"
+      type="text"
+      placeholder="Type a question..."
+      maxlength="500"
+      class="flex-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 rounded-lg px-3 py-2 text-sm outline-none focus:border-purple-500"
+    />
+    <button
+      id="chat-send"
+      class="bg-purple-600 hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg px-4 text-sm font-semibold transition-colors"
+    >Send</button>
+  </div>
+</div>
+
+<script>
+  (function () {
+    const messagesEl = document.getElementById("chat-messages");
+    const input = document.getElementById("chat-input");
+    const sendBtn = document.getElementById("chat-send");
+    const suggestions = document.querySelectorAll(".chat-suggestion");
+
+    // Point this at your deployed function.
+    // Same-origin (Vercel/Netlify serving both site + function): "/api/chat"
+    // Function hosted separately (e.g. site on GitHub Pages): full URL, e.g.
+    // "https://your-project-name.vercel.app/api/chat"
+    const CHAT_API_URL = "/api/chat";
+
+    let history = [];
+    let isSending = false;
+
+    function addMessage(text, sender) {
+      const el = document.createElement("div");
+      const base = "max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed";
+      el.className =
+        sender === "user"
+          ? `${base} self-end bg-purple-600 text-white rounded-br-sm`
+          : `${base} self-start bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 rounded-bl-sm`;
+      el.textContent = text;
+      messagesEl.appendChild(el);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+      return el;
+    }
+
+    function addTyping() {
+      const el = document.createElement("div");
+      el.className =
+        "max-w-[85%] self-start italic text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl rounded-bl-sm px-3.5 py-2.5 text-sm";
+      el.textContent = "Thinking...";
+      messagesEl.appendChild(el);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+      return el;
+    }
+
+    async function sendMessage(text) {
+      if (!text.trim() || isSending) return;
+      isSending = true;
+      sendBtn.disabled = true;
+      input.value = "";
+
+      addMessage(text, "user");
+      const typingEl = addTyping();
+
+      try {
+        const res = await fetch(CHAT_API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: text, history }),
+        });
+
+        const data = await res.json();
+        typingEl.remove();
+
+        if (!res.ok) {
+          addMessage("Sorry, something went wrong. Please try again or email Millyanne directly.", "bot");
+        } else {
+          addMessage(data.reply, "bot");
+          history.push({ role: "user", content: text });
+          history.push({ role: "assistant", content: data.reply });
+          if (history.length > 10) history = history.slice(-10);
+        }
+      } catch (err) {
+        typingEl.remove();
+        addMessage("Network error — please try again.", "bot");
+      } finally {
+        isSending = false;
+        sendBtn.disabled = false;
+      }
+    }
+
+    sendBtn.addEventListener("click", () => sendMessage(input.value));
+    input.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") sendMessage(input.value);
+    });
+    suggestions.forEach((btn) => {
+      btn.addEventListener("click", () => sendMessage(btn.textContent.trim()));
+    });
+  })();
+</script>
+        
+<body class="bg-white dark:bg-gray-900 text-gray-900 dark:text-white transition-colors duration-300">
+
+  <!-- ============================================
+       NAVBAR
+       ============================================ -->
+  <nav class="bg-gray-200 dark:bg-gray-800 p-4 shadow-md sticky top-0 z-50">
+    <div class="container mx-auto flex justify-between items-center">
+      <div class="flex items-center">
+        <span class="text-2xl text-purple-700 dark:text-purple-400 font-bold">Millyanne Wanjala</span>
+      </div>
+
+      <!-- Desktop nav -->
+      <div class="hidden md:flex items-center space-x-8">
+        <button onclick="scrollToSection('home')" class="text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 font-medium transition-colors duration-300 text-lg">Home</button>
+        <button onclick="scrollToSection('about')" class="text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 font-medium transition-colors duration-300 text-lg">About</button>
+        <button onclick="scrollToSection('projects')" class="text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 font-medium transition-colors duration-300 text-lg">Projects</button>
+        <button onclick="scrollToSection('contact')" class="text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 font-medium transition-colors duration-300 text-lg">Contact</button>
+
+        <button id="darkModeToggleDesktop" onclick="toggleDarkMode()" class="ml-6 p-3 rounded-full bg-gray-300 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-400 dark:hover:bg-gray-600 transition-colors duration-300" aria-label="Toggle dark mode">
+          <i class="fa-solid fa-sun" id="sunIconDesktop"></i>
+          <i class="fa-solid fa-moon hidden" id="moonIconDesktop"></i>
+        </button>
+      </div>
+
+      <!-- Mobile nav -->
+      <div class="md:hidden relative">
+        <button onclick="toggleMobileMenu()" class="p-3 rounded-md bg-gray-300 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-400 dark:hover:bg-gray-600 transition-colors duration-300" aria-label="Menu">
+          <i class="fa-solid fa-bars text-xl"></i>
+        </button>
+
+        <div id="mobileDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white dark:bg-gray-700 shadow-lg rounded-md z-50">
+          <button onclick="scrollToSection('home')" class="block w-full text-left px-4 py-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-200">Home</button>
+          <button onclick="scrollToSection('about')" class="block w-full text-left px-4 py-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-200">About</button>
+          <button onclick="scrollToSection('projects')" class="block w-full text-left px-4 py-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-200">Projects</button>
+          <button onclick="scrollToSection('contact')" class="block w-full text-left px-4 py-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-200">Contact</button>
+          <button onclick="toggleDarkMode()" class="block w-full text-left px-4 py-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-200 flex items-center justify-between">
+            <span id="mobileDarkModeLabel">Light Mode</span>
+            <i class="fa-solid fa-sun" id="sunIconMobile"></i>
+            <i class="fa-solid fa-moon hidden" id="moonIconMobile"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ============================================
+       HOME / HERO
+       ============================================ -->
+  <div id="home">
+    <section class="relative flex items-center justify-center min-h-screen px-6">
+      <div class="relative z-10 w-full max-w-6xl flex flex-col md:flex-row items-center">
+        <div class="md:w-1/3 flex justify-center md:justify-start mb-8 md:mb-0">
+          <div class="rounded-full w-56 h-56 flex items-center justify-center border-4 border-purple-600 bg-purple-600">
+            <span class="text-6xl font-bold text-white">MW</span>
+          </div>
+        </div>
+
+        <div class="md:w-2/3 text-center md:text-left">
+          <h1 class="text-4xl md:text-5xl font-bold text-purple-700 dark:text-purple-400 mb-4">
+            I build dependable backend systems that survive real-world failures.
+          </h1>
+          <p class="text-xl text-gray-700 dark:text-gray-300 leading-relaxed">
+            I build and deploy reliable APIs with authentication, AI integration, and cloud infrastructure.
+          </p>
+
+          <div class="mt-6 flex justify-center md:justify-start space-x-6">
+            <a href="https://www.linkedin.com/in/millyanne-wanjala-5365306b/" target="_blank" rel="noopener noreferrer" class="text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 transition-colors" aria-label="LinkedIn"><i class="fa-brands fa-linkedin text-2xl"></i></a>
+            <a href="https://www.twitter.com/millyanne254" target="_blank" rel="noopener noreferrer" class="text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 transition-colors" aria-label="Twitter"><i class="fa-brands fa-twitter text-2xl"></i></a>
+            <a href="https://www.upwork.com/freelancers/~018f1d860f073c0488" target="_blank" rel="noopener noreferrer" class="text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 transition-colors" aria-label="Upwork"><i class="fa-solid fa-briefcase text-2xl"></i></a>
+            <a href="mailto:nmillyanne20@gmail.com" class="text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 transition-colors" aria-label="Email"><i class="fa-solid fa-envelope text-2xl"></i></a>
+            <a href="https://github.com/millyanne93" target="_blank" rel="noopener noreferrer" class="text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 transition-colors" aria-label="GitHub"><i class="fa-brands fa-github text-2xl"></i></a>
+          </div>
+
+          <div class="mt-8 flex flex-wrap justify-center md:justify-start gap-4">
+            <a href="#projects" class="inline-block px-8 py-3 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition-colors">View My Work</a>
+            <a href="#contact" class="inline-block px-8 py-3 border border-purple-600 text-purple-600 dark:text-purple-400 rounded-lg font-medium hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors">Let's Talk</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- What I Build -->
+    <section class="py-20 bg-gray-50 dark:bg-gray-800">
+      <div class="max-w-5xl mx-auto px-6">
+        <h2 class="text-3xl font-bold text-purple-700 dark:text-purple-400 mb-12 text-center">What I Build</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-8">
+            <div class="flex justify-center items-center w-14 h-14 bg-purple-100 dark:bg-purple-900/40 rounded-full mb-6">
+              <i class="fa-solid fa-code text-xl text-purple-600 dark:text-purple-400"></i>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-3">API & Backend Services</h3>
+            <p class="text-gray-600 dark:text-gray-400 mb-6">I build secure, dependable APIs that handle authentication and return useful errors instead of crashes.</p>
+            <ul class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+              <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-purple-500"></span>Express & TypeScript</li>
+              <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-purple-500"></span>PostgreSQL & Supabase</li>
+              <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-purple-500"></span>Authentication & authorization</li>
+              <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-purple-500"></span>API documentation & testing</li>
+            </ul>
+          </div>
+
+          <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-8">
+            <div class="flex justify-center items-center w-14 h-14 bg-purple-100 dark:bg-purple-900/40 rounded-full mb-6">
+              <i class="fa-solid fa-network-wired text-xl text-purple-600 dark:text-purple-400"></i>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-3">Cloud Infrastructure & DevOps</h3>
+            <p class="text-gray-600 dark:text-gray-400 mb-6">I design and deploy infrastructure on AWS using Kubernetes and Terraform, with automated CI/CD pipelines and secure networking.</p>
+            <ul class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+              <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-purple-500"></span>AWS & Kubernetes</li>
+              <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-purple-500"></span>Terraform (IaC)</li>
+              <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-purple-500"></span>Docker & Helm</li>
+              <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-purple-500"></span>CI/CD pipelines</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ============================================
+       ABOUT
+       ============================================ -->
+  <section id="about" class="min-h-screen py-16 bg-gray-50 dark:bg-gray-800">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="text-center mb-12">
+        <h2 class="text-4xl font-bold text-purple-700 dark:text-purple-400 mb-4 flex items-center justify-center gap-3">
+          <i class="fa-solid fa-user"></i> About Me
+        </h2>
+        <p class="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">Backend engineer focused on reliability, APIs, auth, and cloud deployment.</p>
+      </div>
+
+      <!-- Tabs -->
+      <div class="flex flex-wrap justify-center gap-3 mb-8" id="aboutTabs">
+        <button data-tab="overview" onclick="setActiveTab('overview')" class="tab-btn px-5 py-2.5 rounded-lg font-medium transition-colors flex items-center gap-2 bg-purple-600 text-white">
+          <i class="fa-solid fa-user"></i> Overview
+        </button>
+        <button data-tab="skills" onclick="setActiveTab('skills')" class="tab-btn px-5 py-2.5 rounded-lg font-medium transition-colors flex items-center gap-2 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:border-purple-400">
+          <i class="fa-solid fa-code text-purple-600"></i> Skills
+        </button>
+        <button data-tab="experience" onclick="setActiveTab('experience')" class="tab-btn px-5 py-2.5 rounded-lg font-medium transition-colors flex items-center gap-2 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:border-purple-400">
+          <i class="fa-solid fa-briefcase text-purple-600"></i> Experience
+        </button>
+        <button data-tab="education" onclick="setActiveTab('education')" class="tab-btn px-5 py-2.5 rounded-lg font-medium transition-colors flex items-center gap-2 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:border-purple-400">
+          <i class="fa-solid fa-graduation-cap text-purple-600"></i> Education
+        </button>
+      </div>
+
+      <!-- Tab content -->
+      <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 p-8 min-h-96">
+
+        <!-- Overview -->
+        <div id="tab-overview" class="tab-content">
+          <h3 class="text-2xl font-bold text-purple-700 dark:text-purple-400 mb-6">Backend Engineer | Cloud Infrastructure</h3>
+          <div class="grid md:grid-cols-2 gap-8">
+            <div>
+              <p class="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">I'm a backend engineer who builds dependable APIs and cloud infrastructure. I've deployed applications to AWS with Kubernetes, integrated AI services into production systems, and built authentication that protects user data.</p>
+              <p class="text-gray-700 dark:text-gray-300 leading-relaxed">My work focuses on reliability: building APIs that stay correct when things go wrong, not just when everything works.</p>
+            </div>
+            <div class="space-y-4">
+              <div class="flex items-start gap-3">
+                <div class="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/40 flex items-center justify-center flex-shrink-0"><i class="fa-solid fa-database text-purple-600 dark:text-purple-400"></i></div>
+                <div>
+                  <h4 class="font-bold text-gray-900 dark:text-white">API & Backend Services</h4>
+                  <p class="text-sm text-gray-600 dark:text-gray-400">Secure, dependable APIs that handle authentication and errors correctly</p>
+                </div>
+              </div>
+              <div class="flex items-start gap-3">
+                <div class="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/40 flex items-center justify-center flex-shrink-0"><i class="fa-solid fa-network-wired text-purple-600 dark:text-purple-400"></i></div>
+                <div>
+                  <h4 class="font-bold text-gray-900 dark:text-white">Cloud Infrastructure & DevOps</h4>
+                  <p class="text-sm text-gray-600 dark:text-gray-400">AWS infrastructure with Kubernetes and Terraform, automated CI/CD</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Skills -->
+        <div id="tab-skills" class="tab-content hidden">
+          <h3 class="text-2xl font-bold text-purple-700 dark:text-purple-400 mb-8">Technical Expertise</h3>
+
+          <div class="mb-8">
+            <h4 class="text-sm font-semibold text-purple-700 dark:text-purple-400 mb-3 uppercase tracking-wide">API & Backend Services</h4>
+            <div class="flex flex-wrap gap-2">
+              <span class="text-sm px-3 py-1.5 bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full border border-purple-200 dark:border-purple-800">TypeScript</span>
+              <span class="text-sm px-3 py-1.5 bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full border border-purple-200 dark:border-purple-800">Node.js</span>
+              <span class="text-sm px-3 py-1.5 bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full border border-purple-200 dark:border-purple-800">Express</span>
+              <span class="text-sm px-3 py-1.5 bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full border border-purple-200 dark:border-purple-800">Python</span>
+              <span class="text-sm px-3 py-1.5 bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full border border-purple-200 dark:border-purple-800">PostgreSQL</span>
+              <span class="text-sm px-3 py-1.5 bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full border border-purple-200 dark:border-purple-800">Supabase</span>
+              <span class="text-sm px-3 py-1.5 bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full border border-purple-200 dark:border-purple-800">MongoDB</span>
+            </div>
+          </div>
+
+          <div class="mb-8">
+            <h4 class="text-sm font-semibold text-purple-700 dark:text-purple-400 mb-3 uppercase tracking-wide">Cloud Infrastructure & DevOps</h4>
+            <div class="flex flex-wrap gap-2">
+              <span class="text-sm px-3 py-1.5 bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full border border-purple-200 dark:border-purple-800">AWS</span>
+              <span class="text-sm px-3 py-1.5 bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full border border-purple-200 dark:border-purple-800">Kubernetes</span>
+              <span class="text-sm px-3 py-1.5 bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full border border-purple-200 dark:border-purple-800">Docker</span>
+              <span class="text-sm px-3 py-1.5 bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full border border-purple-200 dark:border-purple-800">Terraform</span>
+              <span class="text-sm px-3 py-1.5 bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full border border-purple-200 dark:border-purple-800">Helm Charts</span>
+              <span class="text-sm px-3 py-1.5 bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full border border-purple-200 dark:border-purple-800">CI/CD</span>
+              <span class="text-sm px-3 py-1.5 bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full border border-purple-200 dark:border-purple-800">GitHub Actions</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Experience -->
+        <div id="tab-experience" class="tab-content hidden">
+          <h3 class="text-2xl font-bold text-purple-700 dark:text-purple-400 mb-8">Professional Experience</h3>
+          <div class="space-y-4" id="timelineContainer"></div>
+          <div class="mt-12 text-center">
+            <p class="text-gray-700 dark:text-gray-300 mb-4">Want to see how I build real applications?</p>
+            <a href="https://github.com/millyanne93" target="_blank" rel="noopener noreferrer" class="inline-block px-6 py-3 rounded-lg bg-purple-600 text-white font-medium hover:bg-purple-700 transition-colors">View My GitHub →</a>
+          </div>
+        </div>
+
+        <!-- Education -->
+        <div id="tab-education" class="tab-content hidden">
+          <h3 class="text-2xl font-bold text-purple-700 dark:text-purple-400 mb-8">Education & Certifications</h3>
+          <div class="space-y-6">
+            <div class="border-l-4 border-purple-500 pl-6 py-4 bg-purple-50 dark:bg-purple-900/20 rounded-r-lg">
+              <div class="flex items-start gap-3">
+                <i class="fa-solid fa-graduation-cap text-2xl text-purple-600 dark:text-purple-400 mt-1"></i>
+                <div>
+                  <h4 class="text-lg font-bold text-gray-900 dark:text-white">Bachelor's in Information Science</h4>
+                  <p class="text-purple-600 dark:text-purple-400 font-semibold">Maasai Mara University</p>
+                  <p class="text-sm text-gray-600 dark:text-gray-400">2012 - 2016</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="border-l-4 border-purple-500 pl-6 py-4 bg-purple-50 dark:bg-purple-900/20 rounded-r-lg">
+              <div class="flex items-start gap-3">
+                <i class="fa-solid fa-code text-2xl text-purple-600 dark:text-purple-400 mt-1"></i>
+                <div>
+                  <h4 class="text-lg font-bold text-gray-900 dark:text-white">Software Engineering Program</h4>
+                  <p class="text-purple-600 dark:text-purple-400 font-semibold">ALX Africa</p>
+                  <p class="text-sm text-gray-600 dark:text-gray-400">2023 - 2024</p>
+                  <p class="text-sm text-gray-600 dark:text-gray-400 mt-2"><strong>Relevant coursework:</strong> Network protocols (TCP/IP, HTTP/HTTPS), systems programming (C/C++), algorithm design, backend development</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-4">
+              <div class="border-l-4 border-purple-500 pl-4 py-3 bg-purple-50 dark:bg-purple-900/20 rounded-r-lg">
+                <h4 class="font-bold text-gray-900 dark:text-white">AWS Cloud Practitioner</h4>
+                <p class="text-sm text-gray-600 dark:text-gray-400">April 2025</p>
+              </div>
+              <div class="border-l-4 border-purple-500 pl-4 py-3 bg-purple-50 dark:bg-purple-900/20 rounded-r-lg">
+                <h4 class="font-bold text-gray-900 dark:text-white">Kubernetes Administrator (CKA)</h4>
+                <p class="text-sm text-gray-600 dark:text-gray-400">2026 (In Progress)</p>
+              </div>
+              <div class="border-l-4 border-purple-500 pl-4 py-3 bg-purple-50 dark:bg-purple-900/20 rounded-r-lg">
+                <h4 class="font-bold text-gray-900 dark:text-white">Terraform Associate</h4>
+                <p class="text-sm text-gray-600 dark:text-gray-400">2026 (Planned)</p>
+              </div>
+              <div class="border-l-4 border-purple-500 pl-4 py-3 bg-purple-50 dark:bg-purple-900/20 rounded-r-lg">
+                <h4 class="font-bold text-gray-900 dark:text-white">Project Management Fundamentals</h4>
+                <p class="text-sm text-gray-600 dark:text-gray-400">Coursera - 2022</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================
+       PROJECTS
+       ============================================ -->
+  <section id="projects" class="min-h-screen py-16 bg-gray-50 dark:bg-gray-900">
+    <div class="max-w-4xl mx-auto px-6">
+      <div class="text-center mb-12">
+        <h2 class="text-4xl font-bold text-purple-700 dark:text-purple-400 mb-3">Projects</h2>
+        <p class="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">Three projects, three different starting points — a self-directed infrastructure build, an academic capstone, and a tool built from a real request.</p>
+      </div>
+
+      <div class="space-y-8">
+
+        <!-- PlanIt (featured) -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-purple-300 dark:border-purple-700 p-8">
+          <div class="flex items-start justify-between mb-1">
+            <h3 class="text-2xl font-bold text-gray-900 dark:text-white">PlanIt</h3>
+            <span class="text-xs font-semibold px-2 py-1 rounded-full bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300">Featured</span>
+          </div>
+          <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">Cloud-native task management deployed on AWS EKS</p>
+
+          <div class="mb-4">
+            <h4 class="text-xs font-semibold text-purple-700 dark:text-purple-400 uppercase tracking-wide mb-1">Problem</h4>
+            <p class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">Self-directed project, not a client or business need. I wanted hands-on experience deploying a real application to production-grade cloud infrastructure — Kubernetes, AWS, Docker, and Terraform — instead of only reading about them.</p>
+          </div>
+          <div class="mb-4">
+            <h4 class="text-xs font-semibold text-purple-700 dark:text-purple-400 uppercase tracking-wide mb-1">What I Did</h4>
+            <p class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">Containerized the frontend, backend, and database with Docker, then deployed the full stack to AWS EKS. Used Terraform to provision infrastructure as code and Helm charts to manage Kubernetes deployments. Set up CI with GitHub Actions. Monitoring and logging (Prometheus/Grafana) were planned but not completed before the project was taken down.</p>
+          </div>
+          <div class="mb-4">
+            <h4 class="text-xs font-semibold text-purple-700 dark:text-purple-400 uppercase tracking-wide mb-1">Result</h4>
+            <p class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">The application deployed and ran successfully on EKS. No performance metrics were captured, since the deployment was intentionally torn down after verifying it worked, to avoid ongoing AWS costs. The infrastructure code remains in the repository and can be redeployed.</p>
+          </div>
+          <div class="mb-4">
+            <h4 class="text-xs font-semibold text-purple-700 dark:text-purple-400 uppercase tracking-wide mb-1">Learnings</h4>
+            <p class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">Database passwords generated dynamically by Terraform changed on every terraform apply — I'd use AWS Secrets Manager instead. I also got billed after terraform destroy because EBS volumes persisted; I'd now add explicit lifecycle rules to ensure storage is destroyed with the rest of the stack. I'd also set up monitoring and logging from the start rather than leaving it for later.</p>
+          </div>
+
+          <div class="flex flex-wrap gap-2 my-6">
+            <span class="text-xs px-2.5 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full">React</span>
+            <span class="text-xs px-2.5 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full">Flask</span>
+            <span class="text-xs px-2.5 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full">MongoDB</span>
+            <span class="text-xs px-2.5 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full">AWS</span>
+            <span class="text-xs px-2.5 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full">Terraform</span>
+            <span class="text-xs px-2.5 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full">Kubernetes</span>
+            <span class="text-xs px-2.5 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full">Docker</span>
+            <span class="text-xs px-2.5 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full">Helm</span>
+          </div>
+
+          <div class="flex gap-3">
+            <a href="https://github.com/millyanne93/PlanIt" target="_blank" rel="noopener noreferrer" class="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-gray-900 dark:bg-gray-700 text-white rounded-lg hover:bg-purple-600 dark:hover:bg-purple-600 transition-colors text-sm font-medium">
+              <i class="fa-brands fa-github"></i> Code
+            </a>
+          </div>
+        </div>
+
+        <!-- EduAdapt -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8">
+          <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-1">EduAdapt</h3>
+          <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">AI-powered adaptive learning platform</p>
+
+          <div class="mb-4">
+            <h4 class="text-xs font-semibold text-purple-700 dark:text-purple-400 uppercase tracking-wide mb-1">Problem</h4>
+            <p class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">Graduation project for my ALX Backend Specialization. Students often struggle to find practice questions matched to their actual level of understanding — most platforms either give generic questions or adapt using metrics too simple to capture real gaps in knowledge. I wanted to explore whether AI could generate questions targeted at a student's specific weaknesses.</p>
+          </div>
+          <div class="mb-4">
+            <h4 class="text-xs font-semibold text-purple-700 dark:text-purple-400 uppercase tracking-wide mb-1">What I Did</h4>
+            <p class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">Built a backend API where teachers generate questions using the Gemini API, students take tests and receive feedback, and access is role-based (teacher vs. student). Generated questions are stored in MongoDB with content, options, difficulty level, and topic. The backend was tested with a small pilot group — 5-10 students, 2 teachers. The frontend is still in development and not yet deployed.</p>
+          </div>
+          <div class="mb-4">
+            <h4 class="text-xs font-semibold text-purple-700 dark:text-purple-400 uppercase tracking-wide mb-1">Result</h4>
+            <p class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">API response time for question generation: 2-5 seconds per set. Role-based auth, question generation, and test-taking all function correctly in the pilot. No production usage data beyond the pilot group yet.</p>
+          </div>
+          <div class="mb-4">
+            <h4 class="text-xs font-semibold text-purple-700 dark:text-purple-400 uppercase tracking-wide mb-1">Learnings</h4>
+            <p class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">I embedded Gemini API calls directly into the main backend — when Google updated the API, the integration broke and I had to chase changes across the codebase. I'd decouple AI calls into their own microservice next time, so it's easier to update and test in isolation. I also hit Gemini's rate limits under load when requesting 20-30 questions at once, and should have designed around that constraint earlier instead of discovering it live. I built breadth before deployability — I'd aim for a deployable MVP first instead.</p>
+          </div>
+
+          <div class="flex flex-wrap gap-2 my-6">
+            <span class="text-xs px-2.5 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full">Node.js</span>
+            <span class="text-xs px-2.5 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full">React</span>
+            <span class="text-xs px-2.5 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full">MongoDB</span>
+            <span class="text-xs px-2.5 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full">Gemini AI</span>
+          </div>
+
+          <div class="flex gap-3">
+            <a href="https://github.com/millyanne93/eduadapt" target="_blank" rel="noopener noreferrer" class="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-gray-900 dark:bg-gray-700 text-white rounded-lg hover:bg-purple-600 dark:hover:bg-purple-600 transition-colors text-sm font-medium">
+              <i class="fa-brands fa-github"></i> Code
+            </a>
+          </div>
+        </div>
+
+        <!-- Trackr -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8">
+          <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-1">Trackr</h3>
+          <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">Equipment tracking system for small businesses</p>
+
+          <div class="mb-4">
+            <h4 class="text-xs font-semibold text-purple-700 dark:text-purple-400 uppercase tracking-wide mb-1">Problem</h4>
+            <p class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">Someone in a group chat asked if a tool existed for tracking business equipment. Small businesses often rely on spreadsheets or paper logs, while enterprise tracking tools are too expensive and complex for their scale. Trackr fills that middle ground — simple, affordable equipment tracking for small businesses.</p>
+          </div>
+          <div class="mb-4">
+            <h4 class="text-xs font-semibold text-purple-700 dark:text-purple-400 uppercase tracking-wide mb-1">What I Did</h4>
+            <p class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">Built a full web app with authentication, role-based access (admin vs. regular user), equipment assignment and tracking, borrowing history, and real-time status updates.</p>
+          </div>
+          <div class="mb-4">
+            <h4 class="text-xs font-semibold text-purple-700 dark:text-purple-400 uppercase tracking-wide mb-1">Result</h4>
+            <p class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">Fully deployed and publicly accessible. No active production users yet, but the live demo is verifiable — anyone can visit and use it directly, unlike PlanIt or EduAdapt.</p>
+          </div>
+          <div class="mb-4">
+            <h4 class="text-xs font-semibold text-purple-700 dark:text-purple-400 uppercase tracking-wide mb-1">Learnings</h4>
+            <p class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">I wrote the dashboard before planning component structure, which led to a large, tightly coupled codebase that made bugs hard to trace — I'd design the frontend architecture before writing code next time. I also found a bug where new users hit an error because the history endpoint expected populated data and got an empty array; I'm fixing this by returning empty arrays instead of 404s, so the frontend can show a proper 'no history yet' state instead of failing.</p>
+          </div>
+
+          <div class="flex flex-wrap gap-2 my-6">
+            <span class="text-xs px-2.5 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full">React</span>
+            <span class="text-xs px-2.5 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full">Node.js</span>
+            <span class="text-xs px-2.5 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full">MongoDB</span>
+            <span class="text-xs px-2.5 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full">Tailwind CSS</span>
+          </div>
+
+          <div class="flex gap-3">
+            <a href="https://github.com/millyanne93/trackr" target="_blank" rel="noopener noreferrer" class="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-gray-900 dark:bg-gray-700 text-white rounded-lg hover:bg-purple-600 dark:hover:bg-purple-600 transition-colors text-sm font-medium">
+              <i class="fa-brands fa-github"></i> Code
+            </a>
+            <a href="https://trackr-kd45.vercel.app/" target="_blank" rel="noopener noreferrer" class="flex-1 flex items-center justify-center gap-2 px-4 py-2 border border-purple-600 text-purple-600 dark:text-purple-400 rounded-lg hover:bg-purple-600 hover:text-white transition-colors text-sm font-medium">
+              <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i> Live Demo
+            </a>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="mt-16 text-center">
+        <a href="mailto:nmillyanne20@gmail.com?subject=Technical%20Interview" class="inline-block px-8 py-3 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition-colors">Email me to schedule a technical interview</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================
+       CONTACT
+       ============================================ -->
+  <section id="contact" class="min-h-screen flex flex-col items-center justify-center bg-white dark:bg-gray-900 px-6 py-20">
+    <h2 class="text-3xl font-bold text-purple-700 dark:text-purple-400 mb-4">Let's Connect</h2>
+    <p class="text-gray-600 dark:text-gray-400 mb-10 text-center max-w-xl">I'm open to backend and cloud engineering roles, and technical collaborations.</p>
+
+    <a href="mailto:nmillyanne20@gmail.com?subject=Technical%20Interview" class="mb-12 inline-block px-8 py-3 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition-colors">Email me to schedule a technical interview</a>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full max-w-5xl">
+      <a href="https://www.linkedin.com/in/millyanne-wanjala-5365306b/" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center p-6 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-purple-400 dark:hover:border-purple-500 transition-colors text-center">
+        <i class="fa-brands fa-linkedin text-3xl mb-3 text-purple-600 dark:text-purple-400"></i>
+        <h3 class="font-semibold text-gray-900 dark:text-white">LinkedIn</h3>
+        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1 break-all">Professional profile & experience</p>
+      </a>
+      <a href="mailto:nmillyanne20@gmail.com?subject=Hello%20Millyanne" class="flex flex-col items-center p-6 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-purple-400 dark:hover:border-purple-500 transition-colors text-center">
+        <i class="fa-solid fa-envelope text-3xl mb-3 text-purple-600 dark:text-purple-400"></i>
+        <h3 class="font-semibold text-gray-900 dark:text-white">Email</h3>
+        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1 break-all">nmillyanne20@gmail.com</p>
+      </a>
+      <a href="https://github.com/millyanne93" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center p-6 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-purple-400 dark:hover:border-purple-500 transition-colors text-center">
+        <i class="fa-brands fa-github text-3xl mb-3 text-purple-600 dark:text-purple-400"></i>
+        <h3 class="font-semibold text-gray-900 dark:text-white">GitHub</h3>
+        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1 break-all">Code, projects & contributions</p>
+      </a>
+      <a href="https://www.twitter.com/millyanne254" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center p-6 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-purple-400 dark:hover:border-purple-500 transition-colors text-center">
+        <i class="fa-brands fa-twitter text-3xl mb-3 text-purple-600 dark:text-purple-400"></i>
+        <h3 class="font-semibold text-gray-900 dark:text-white">Twitter</h3>
+        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1 break-all">@millyanne254</p>
+      </a>
+    </div>
+
+    <div class="mt-12 text-center">
+      <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-2">Availability</h3>
+      <p class="text-gray-500 dark:text-gray-400">Monday – Friday · 9 AM – 6 PM (GMT+3)</p>
+      <p class="text-gray-500 dark:text-gray-400">Typical response time: within 24 hours</p>
+    </div>
+  </section>
+
+  <!-- ============================================
+       FOOTER
+       ============================================ -->
+  <footer class="bg-gray-200 dark:bg-gray-800 py-4">
+    <div class="container mx-auto text-center text-gray-700 dark:text-gray-300">
+      &copy; <span id="year"></span> Millyanne Wanjala. All Rights Reserved.
+    </div>
+  </footer>
+
+  <!-- ============================================
+       SCRIPT
+       ============================================ -->
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // ---------- Dark mode ----------
+    function applyDarkMode(isDark) {
+      document.documentElement.classList.toggle('dark', isDark);
+      localStorage.setItem('darkMode', isDark ? 'true' : 'false');
+
+      document.getElementById('sunIconDesktop').classList.toggle('hidden', isDark);
+      document.getElementById('moonIconDesktop').classList.toggle('hidden', !isDark);
+      document.getElementById('sunIconMobile').classList.toggle('hidden', isDark);
+      document.getElementById('moonIconMobile').classList.toggle('hidden', !isDark);
+      document.getElementById('mobileDarkModeLabel').textContent = isDark ? 'Light Mode' : 'Dark Mode';
+    }
+
+    function toggleDarkMode() {
+      const isDark = !document.documentElement.classList.contains('dark');
+      applyDarkMode(isDark);
+    }
+
+    const savedMode = localStorage.getItem('darkMode');
+    const initialDark = savedMode !== null ? savedMode === 'true' : true;
+    applyDarkMode(initialDark);
+
+    // ---------- Mobile menu ----------
+    function toggleMobileMenu() {
+      document.getElementById('mobileDropdown').classList.toggle('hidden');
+    }
+
+    // ---------- Smooth scroll ----------
+    function scrollToSection(id) {
+      document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+      document.getElementById('mobileDropdown').classList.add('hidden');
+    }
+
+    // ---------- About tabs ----------
+    function setActiveTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach((el) => el.classList.add('hidden'));
+      document.getElementById('tab-' + tabId).classList.remove('hidden');
+
+      document.querySelectorAll('.tab-btn').forEach((btn) => {
+        const active = btn.dataset.tab === tabId;
+        btn.classList.toggle('bg-purple-600', active);
+        btn.classList.toggle('text-white', active);
+        btn.classList.toggle('bg-white', !active);
+        btn.classList.toggle('dark:bg-gray-900', !active);
+        btn.classList.toggle('text-gray-700', !active);
+        btn.classList.toggle('dark:text-gray-300', !active);
+        btn.classList.toggle('border', !active);
+        btn.classList.toggle('border-gray-200', !active);
+        btn.classList.toggle('dark:border-gray-700', !active);
+
+        const icon = btn.querySelector('i');
+        if (icon) icon.classList.toggle('text-white', active);
+      });
+    }
+
+    // ---------- Experience timeline ----------
+    const experienceTimeline = [
+      {
+        year: "2026 - Present",
+        title: "Backend AI Engineering Intern",
+        company: "FlyRank AI",
+        description: "Building and maintaining backend infrastructure for a growing AI platform. Work spans API development, database migration, authentication, and data collection pipelines.",
+        responsibilities: [
+          "Built a CRUD API with Express and TypeScript, implementing input validation, error handling, and OpenAPI documentation served via Swagger UI",
+          "Migrated the data layer from SQLite to PostgreSQL after identifying concurrency and scalability limitations, containerizing the full application stack with Docker and Docker Compose",
+          "Implemented secure authentication using Supabase Auth, with JWT-based protected routes, reusable middleware for token verification, and token blacklisting on logout",
+          "Designed and deployed a polite web scraper extracting structured data from 60+ pages, with local caching, automatic retry logic, and a run report summarizing success rates and errors",
+        ],
+        icon: "fa-database",
+      },
+      {
+        year: "2025 - Present",
+        title: "Sole Developer & Technical Lead",
+        company: "Hopeful Destiny CBO",
+        description: "Contracted to design and develop a website for a community-based organization focused on youth empowerment and community development.",
+        responsibilities: [
+          "Built and delivered a responsive React website with Tailwind CSS, establishing the organization's digital foundation",
+          "Sole point of contact for translating stakeholder needs into technical requirements",
+          "Manage ongoing technical operations, including deployment monitoring and content updates",
+        ],
+        icon: "fa-react",
+        brand: true,
+      },
+      {
+        year: "2024 - Present",
+        title: "Backend Engineer",
+        company: "Independent Projects",
+        description: "Building backend systems and cloud-native infrastructure across independent projects.",
+        responsibilities: [
+          "Build backend APIs with role-based access control and full CRUD operations",
+          "Design and deploy cloud-native systems on AWS EKS using Kubernetes and Terraform (IaC)",
+          "Build secure, scalable AWS networking (VPC, subnets, security groups, NACLs, load balancers)",
+          "Implement monitoring and troubleshooting with CloudWatch and VPC Flow Logs",
+        ],
+        icon: "fa-aws",
+        brand: true,
+      },
+      {
+        year: "2023 - 2024",
+        title: "Junior Software Developer",
+        company: "ALX Africa - Software Engineering Program",
+        description: "Intensive software engineering training program with hands-on projects covering backend systems, algorithms, and system design.",
+        responsibilities: [
+          "Developed EduAdapt, an adaptive learning platform using React and Node.js",
+          "Built Tele-Thrive, a virtual therapy platform using Flask and JavaScript",
+          "Implemented a Monty ByteCode Interpreter in C, focusing on memory management and algorithmic logic",
+        ],
+        icon: "fa-code",
+      },
+      {
+        year: "2021 - 2023",
+        title: "AI Data Annotation Specialist",
+        company: "Clickworker / Remotasks",
+        description: "Annotated and validated datasets used to train machine learning models for NLP and search relevance.",
+        responsibilities: [
+          "Labeled large datasets with high accuracy for AI model training",
+          "Performed quality checks on AI-generated outputs",
+        ],
+        icon: "fa-briefcase",
+      },
+      {
+        year: "2018 - 2021",
+        title: "Sales & Business Development Officer",
+        company: "AmoebaX Ltd",
+        description: "Led sales initiatives and customer relations while supporting technology-driven business operations.",
+        responsibilities: [
+          "Led client engagement and requirement gathering",
+          "Used CRM systems and data analysis to improve operational efficiency",
+        ],
+        icon: "fa-briefcase",
+      },
+    ];
+
+    const timelineContainer = document.getElementById('timelineContainer');
+    experienceTimeline.forEach((exp, index) => {
+      const isLast = index === experienceTimeline.length - 1;
+      const iconClass = exp.brand ? 'fa-brands' : 'fa-solid';
+      const item = document.createElement('div');
+      item.className = 'flex gap-4';
+      item.innerHTML = `
+        <div class="flex flex-col items-center">
+          <div class="w-10 h-10 rounded-full flex items-center justify-center bg-purple-600 flex-shrink-0">
+            <i class="${iconClass} ${exp.icon} text-white text-lg"></i>
+          </div>
+          ${isLast ? '' : '<div class="w-0.5 h-full bg-purple-200 dark:bg-purple-800"></div>'}
+        </div>
+        <div class="pb-8 flex-1">
+          <div class="bg-white dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+            <p class="text-sm font-semibold text-purple-600 dark:text-purple-400">${exp.year}</p>
+            <h4 class="text-lg font-bold text-gray-900 dark:text-white mt-1">${exp.title}</h4>
+            <p class="text-sm text-purple-700 dark:text-purple-300 mb-2">${exp.company}</p>
+            <p class="text-sm text-gray-700 dark:text-gray-300">${exp.description}</p>
+            <div class="mt-3">
+              <p class="text-sm font-semibold text-purple-700 dark:text-purple-300 mb-2">Key work:</p>
+              <ul class="list-disc list-inside space-y-1">
+                ${exp.responsibilities.map((r) => `<li class="text-sm text-gray-600 dark:text-gray-400">${r}</li>`).join('')}
+              </ul>
+            </div>
+          </div>
+        </div>
+      `;
+      timelineContainer.appendChild(item);
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,9 @@
+[build]
+  functions = "netlify/functions"
+
+# Lets the widget keep calling "/api/chat" instead of the longer
+# "/.netlify/functions/chat" path — no change needed in widget-snippet.html
+[[redirects]]
+  from = "/api/chat"
+  to = "/.netlify/functions/chat"
+  status = 200
