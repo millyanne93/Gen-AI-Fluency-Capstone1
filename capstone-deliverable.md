@@ -68,6 +68,7 @@ I was able to produce approximately 300-word summaries together with structured 
 **What I learned:**
 
 AI is most useful for research when I treat its output as a starting point that still requires verification rather than accepting generated information without checking the source.
+<img width="1366" height="728" alt="2026-08-12 (7)" src="https://github.com/user-attachments/assets/9637a107-a483-4c12-b1b4-664aa8ef3250" />
 
 ---
 
@@ -173,6 +174,8 @@ The main principles I applied were:
 ## Live Portfolio
 
 **Portfolio:** https://millyanne93-portfolio.netlify.app/
+<img width="1366" height="728" alt="2026-08-12 (2)" src="https://github.com/user-attachments/assets/cd56f77b-9a7d-4868-b518-86a42a1271a1" />
+
 
 The portfolio presents my background, technical skills, projects, and case studies in a professional format.
 
@@ -184,12 +187,12 @@ The portfolio presents my background, technical skills, projects, and case studi
 | ----------------- | ------------------------------------ |
 | **Heading Font**  | Space Grotesk                        |
 | **Body Font**     | Inter                                |
-| **Primary Color** | `#2563EB`                            |
-| **Text Color**    | `#111827`                            |
-| **Background**    | `#F9FAFB`                            |
-| **Accent**        | `#14B8A6`                            |
+| **Primary Color** | `#6B21A5` (purple)                  |
+| **Text Color**    | `#111827` (near-black)              |
+| **Background**    | `#F9FAFB` (off-white)               |
+| **Accent**        | `#8B5CF6` (lighter purple)          |
 | **Logo**          | "MW" monogram                        |
-| **Mood**          | Modern, clean, minimal, professional |
+| **Mood**          | Modern, clean, minimal, professional, with a purple accent |
 
 The visual identity was designed to communicate a combination of technical competence, clarity, and professionalism.
 
@@ -295,6 +298,9 @@ I built an AI-powered chat widget for my portfolio that allows visitors to ask q
 
 The agent uses the Claude API through a Netlify serverless function.
 
+<img width="1000" height="900" alt="widget_dark_FINAL" src="https://github.com/user-attachments/assets/dbc56844-24f5-4052-b74c-4db2852115ad" />
+
+
 ---
 
 ## User Experience
@@ -388,6 +394,7 @@ The system prompt is designed to:
 * Stay within the factual information provided to it.
 
 This helps reduce hallucinations and keeps the agent focused on its purpose.
+<img width="1366" height="728" alt="2026-08-12 (5)" src="https://github.com/user-attachments/assets/8cc86a49-90b3-4311-8af2-37ce73609d41" />
 
 ---
 
