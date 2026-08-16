@@ -318,9 +318,9 @@ Visitor asks a question
         ↓
 Question sent to Netlify Function
         ↓
-Netlify Function calls Claude API
+Netlify Function calls Gemini API
         ↓
-Claude generates response
+Gemini generates response
         ↓
 Response returned to browser
         ↓
@@ -347,7 +347,7 @@ Visitor sees answer
 │                             │
 │  - Receives user question   │
 │  - Builds system prompt     │
-│  - Calls Claude API         │
+│  - Calls Gemini API         │
 │  - Returns AI response      │
 └──────────────┬──────────────┘
                │
@@ -357,7 +357,7 @@ Visitor sees answer
 │            Google Gemini API                 │
 │                                              │
 │            Gemini 2.5 Flash                  │
-│    (Free tier: 15 req/min, 1,500/day)        │
+│                                              │
 └──────────────────────────────────────────────┘
 ```
 
@@ -404,7 +404,7 @@ This helps reduce hallucinations and keeps the agent focused on its purpose.
 The current implementation has several known limitations:
 
 ### 1. API Credits
-The agent uses Gemini's free tier, which has limits of 15 requests per minute and 1,500 requests per day. This is sufficient for a low-traffic portfolio site.
+The agent uses Gemini's free tier. This is sufficient for a low-traffic portfolio site.
 
 ### 2. No Conversation Persistence
 
@@ -450,7 +450,7 @@ https://millyanne93-portfolio.netlify.app/
 
 **Backend:** Netlify Serverless Function.
 
-**AI Provider:** Gemini free tier (15 req/min, 1,500/day).
+**AI Provider:** Gemini free tier.
 
 ---
 
@@ -476,7 +476,7 @@ This capstone brought together the main skills I developed during the internship
 
 ### 1. AI Fluency
 
-I learned to use AI as a thinking and development partner for research, coding, debugging, communication, and problem solving rather than simply using it to generate answers.
+I learned to use AI as a thinking and development partner for research, coding, debugging, communication, and problem-solving rather than simply using it to generate answers.
 
 ### 2. Prompt Engineering
 
