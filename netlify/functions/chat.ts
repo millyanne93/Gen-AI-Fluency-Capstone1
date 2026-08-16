@@ -1,5 +1,5 @@
 // netlify/functions/chat.ts
-// Netlify Function — proxies chat messages to the Claude API.
+// Netlify Function — proxies chat messages to the Gemini API.
 // The API key lives only here, server-side. It is never sent to the browser.
 
 import type { Handler } from "@netlify/functions";
@@ -56,6 +56,8 @@ RULES:
 - Keep answers short: 2-4 sentences, friendly and professional.
 - Never make up projects, dates, or skills that are not listed above.`;
 
+const GEMINI_MODEL = "gemini-2.5-flash"; // confirm current free-tier model name in Google AI Studio before deploying
+
 export const handler: Handler = async (event) => {
   if (event.httpMethod !== "POST") {
     return { statusCode: 405, body: JSON.stringify({ error: "Method not allowed" }) };
@@ -77,31 +79,55 @@ export const handler: Handler = async (event) => {
   }
 
   try {
-    const messages = [...(history ?? []), { role: "user", content: message }];
-
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "x-api-key": process.env.ANTHROPIC_API_KEY as string,
-        "anthropic-version": "2023-06-01",
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "claude-haiku-4-5",
-        max_tokens: 300,
-        system: SYSTEM_PROMPT,
-        messages,
-      }),
-    });
-
-    if (!response.ok) {
-      const errText = await response.text();
-      console.error("Anthropic API error:", errText);
-      return { statusCode: 502, body: JSON.stringify({ error: "Upstream API error" }) };
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      console.error("GEMINI_API_KEY is not set");
+      return { statusCode: 500, body: JSON.stringify({ error: "API key not configured" }) };
     }
 
+    const contents = [
+      ...(history || []).map((h) => ({
+        role: h.role === "user" ? "user" : "model",
+        parts: [{ text: h.content }],
+      })),
+      { role: "user", parts: [{ text: message }] },
+    ];
+
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`,
+      {
+        method: "POST",
+        headers: {
+          "x-goog-api-key": apiKey,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
+          contents,
+          generationConfig: {
+            temperature: 0.4,
+            maxOutputTokens: 300,
+          },
+        }),
+      }
+    );
+
     const data = await response.json();
-    const reply = data.content?.[0]?.text ?? "Sorry, I couldn't generate a reply.";
+
+    if (!response.ok) {
+      console.error("Gemini API error:", data);
+      return {
+        statusCode: 502,
+        body: JSON.stringify({
+          error: "Upstream API error",
+          details: data.error?.message || "Unknown error",
+        }),
+      };
+    }
+
+    const reply =
+      data.candidates?.[0]?.content?.parts?.[0]?.text ||
+      "Sorry, I couldn't generate a reply.Please email Millyanne directly at nmillyanne20@gmail.com.";
 
     return {
       statusCode: 200,
@@ -110,6 +136,9 @@ export const handler: Handler = async (event) => {
     };
   } catch (err) {
     console.error("Chat handler error:", err);
-    return { statusCode: 500, body: JSON.stringify({ error: "Something went wrong. Please try again." }) };
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: "Something went wrong. Please try again." }),
+    };
   }
 };

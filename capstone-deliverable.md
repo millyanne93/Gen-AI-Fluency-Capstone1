@@ -293,7 +293,7 @@ The application was successfully deployed and is available online.
 
 I built an AI-powered chat widget for my portfolio that allows visitors to ask questions about my background, technical skills, projects, and experience.
 
-The agent uses the Claude API through a Netlify serverless function.
+The agent uses the **Gemini API** through a Netlify serverless function. Gemini 2.5 Flash is used because it is available on the free tier, with a limit of 15 requests per minute and 1,500 requests per day.
 
 ---
 
@@ -347,11 +347,12 @@ Visitor sees answer
                │
                │ HTTPS
                ▼
-┌─────────────────────────────┐
-│       Anthropic API         │
-│                             │
-│       Claude Haiku 4.5      │
-└─────────────────────────────┘
+┌──────────────────────────────────────────────┐
+│            Google Gemini API                 │
+│                                              │
+│            Gemini 2.5 Flash                  │
+│    (Free tier: 15 req/min, 1,500/day)        │
+└──────────────────────────────────────────────┘
 ```
 
 ---
@@ -363,13 +364,13 @@ Visitor sees answer
 | **Frontend**             | HTML + CSS + JavaScript             |
 | **Chat UI**              | JavaScript embedded in `index.html` |
 | **Backend**              | Netlify Serverless Function         |
-| **AI Model**             | Claude Haiku 4.5                    |
-| **AI Provider**          | Anthropic API                       |
+| **AI Model**             |  Gemini 2.5 Flash                   |
+| **AI Provider**          |  Google Gemini API                  |
 | **Hosting**              | Netlify                             |
-| **Environment Variable** | `ANTHROPIC_API_KEY`                 |
+| **Environment Variable** | `GEMINI_API_KEY`                    |
 | **API Key Storage**      | Netlify environment variables       |
 
-The Anthropic API key is stored as a server-side environment variable rather than being exposed in the browser.
+The Gemini API key is stored as a server-side environment variable rather than being exposed in the browser.
 
 ---
 
@@ -396,8 +397,7 @@ This helps reduce hallucinations and keeps the agent focused on its purpose.
 The current implementation has several known limitations:
 
 ### 1. API Credits
-
-The agent implementation is complete and deployed, but live responses require an active Anthropic API account with available API credits.
+The agent uses Gemini's free tier, which has limits of 15 requests per minute and 1,500 requests per day. This is sufficient for a low-traffic portfolio site.
 
 ### 2. No Conversation Persistence
 
@@ -415,12 +415,12 @@ The agent is intentionally restricted to information about me rather than functi
 
 # Security Considerations
 
-The personal agent uses a serverless backend instead of calling the Anthropic API directly from the browser.
+The personal agent uses a serverless backend instead of calling the GEMINI API directly from the browser.
 
 The API key is stored using a Netlify environment variable:
 
 ```text
-ANTHROPIC_API_KEY
+GEMINI_API_KEY
 ```
 
 The key is therefore not included in the public frontend source code.
@@ -443,7 +443,7 @@ https://millyanne93-portfolio.netlify.app/
 
 **Backend:** Netlify Serverless Function.
 
-**AI Provider:** Anthropic Claude API.
+**AI Provider:** Gemini free tier (15 req/min, 1,500/day).
 
 ---
 
@@ -457,9 +457,9 @@ https://millyanne93-portfolio.netlify.app/
 | **Portfolio Case Studies** | ✅ Completed             | PlanIt, EduAdapt, Trackr                                |
 | **Personal Agent**         | ✅ Built & Deployed      | Portfolio chat widget                                   |
 | **Serverless Backend**     | ✅ Completed             | Netlify Function                                        |
-| **AI Integration**         | ✅ Implemented           | Anthropic Claude API                                    |
+| **AI Integration**         | ✅ Implemented           | Gemini free tier                                        |
 | **Secrets Management**     | ✅ Completed             | Netlify environment variable                            |
-| **Live Agent Responses**   | ⚠️ Requires API Credits | Anthropic API account                                   |
+| **Live Agent Responses**   | ✅ Working               | Google API account                                      |
 
 ---
 
@@ -519,7 +519,7 @@ Through this project, I moved from using AI primarily as a coding assistant towa
 
 ---
 
-**Built with:** Claude, ChatGPT, NotebookLM, Netlify, HTML, CSS, JavaScript, TypeScript, Supabase
+**Built with:** Claude, ChatGPT, NotebookLM, Netlify, HTML, CSS, JavaScript, TypeScript, Gemini
 
 **Internship:** FlyRank AI — Backend Engineering Track
 
