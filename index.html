@@ -4,6 +4,85 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Millyanne Wanjala — Backend Engineer</title>
+  <!-- ============================================
+     SEO META TAGS
+     ============================================ -->
+  <meta
+    name="description"
+    content="Backend Engineer building reliable APIs, cloud infrastructure, and AI-powered systems with TypeScript, Node.js, AWS, and Kubernetes."
+  />
+
+  <meta
+    name="keywords"
+    content="Backend Engineer, Backend Developer, API Development, TypeScript, Node.js, AWS, Kubernetes, Cloud Infrastructure, AI Integration"
+  />
+
+  <meta name="author" content="Millyanne Wanjala" />
+
+  <link
+    rel="canonical"
+    href="https://millyanne93-portfolio.netlify.app/"
+  />
+
+  <!-- ============================================
+     OPEN GRAPH (Social Sharing)
+       ============================================ -->
+  <meta
+    property="og:title"
+    content="Millyanne Wanjala — Backend Engineer"
+  />
+
+  <meta
+    property="og:description"
+    content="Backend Engineer building reliable APIs, cloud infrastructure, and AI-powered systems."
+  />
+
+  <meta property="og:type" content="website" />
+
+  <meta
+    property="og:url"
+    content="https://millyanne93-portfolio.netlify.app/"
+  />
+
+  <meta
+    property="og:image"
+    content="https://millyanne93-portfolio.netlify.app/og-image.png"
+  />
+
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+
+  <!-- ============================================
+     TWITTER / X CARDS
+     ============================================ -->
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <meta
+    name="twitter:title"
+    content="Millyanne Wanjala — Backend Engineer"
+  />
+
+  <meta
+    name="twitter:description"
+    content="Backend Engineer building reliable APIs, cloud infrastructure, and AI-powered systems."
+  />
+
+  <meta
+    name="twitter:image"
+    content="https://millyanne93-portfolio.netlify.app/og-image.png"
+  />
+
+  <!-- ============================================
+     FAVICON
+     ============================================ -->
+  <!-- SVG favicon (modern browsers) -->
+  <link rel="icon" type="image/svg+xml" href='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="#6B21A5"/><text x="50" y="56" font-family="Inter, Arial, sans-serif" font-size="42" font-weight="bold" fill="white" text-anchor="middle" dominant-baseline="central">MW</text></svg>' />
+
+  <!-- Fallback for older browsers -->
+  <link rel="icon" type="image/png" sizes="32x32" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%236B21A5'/%3E%3Ctext x='50' y='56' font-family='Inter, Arial, sans-serif' font-size='42' font-weight='bold' fill='white' text-anchor='middle' dominant-baseline='central'%3EMW%3C/text%3E%3C/svg%3E" />
+
+  <!-- Apple Touch Icon (iPhone/iPad) -->
+  <link rel="apple-touch-icon" href='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="#6B21A5"/><text x="50" y="56" font-family="Inter, Arial, sans-serif" font-size="42" font-weight="bold" fill="white" text-anchor="middle" dominant-baseline="central">MW</text></svg>' />
 
   <!-- Tailwind CDN — lets us reuse the exact utility classes from the React version -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -188,8 +267,10 @@
       <div class="hidden md:flex items-center space-x-8">
         <button onclick="scrollToSection('home')" class="text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 font-medium transition-colors duration-300 text-lg">Home</button>
         <button onclick="scrollToSection('about')" class="text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 font-medium transition-colors duration-300 text-lg">About</button>
+        <button onclick="scrollToSection('experience')" class="text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 font-medium transition-colors duration-300 text-lg">Experience</button>
         <button onclick="scrollToSection('projects')" class="text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 font-medium transition-colors duration-300 text-lg">Projects</button>
         <button onclick="scrollToSection('contact')" class="text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 font-medium transition-colors duration-300 text-lg">Contact</button>
+        <button onclick="scrollToSection('updates')" class="text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 font-medium transition-colors duration-300 text-lg">Updates</button>
 
         <button id="darkModeToggleDesktop" onclick="toggleDarkMode()" class="ml-6 p-3 rounded-full bg-gray-300 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-400 dark:hover:bg-gray-600 transition-colors duration-300" aria-label="Toggle dark mode">
           <i class="fa-solid fa-sun" id="sunIconDesktop"></i>
@@ -206,8 +287,10 @@
         <div id="mobileDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white dark:bg-gray-700 shadow-lg rounded-md z-50">
           <button onclick="scrollToSection('home')" class="block w-full text-left px-4 py-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-200">Home</button>
           <button onclick="scrollToSection('about')" class="block w-full text-left px-4 py-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-200">About</button>
+          <button onclick="scrollToSection('experience')" class="block w-full text-left px-4 py-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-200">Experience</button>
           <button onclick="scrollToSection('projects')" class="block w-full text-left px-4 py-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-200">Projects</button>
           <button onclick="scrollToSection('contact')" class="block w-full text-left px-4 py-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-200">Contact</button>
+          <button onclick="scrollToSection('updates')" class="block w-full text-left px-4 py-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-200">Updates</button>
           <button onclick="toggleDarkMode()" class="block w-full text-left px-4 py-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-200 flex items-center justify-between">
             <span id="mobileDarkModeLabel">Light Mode</span>
             <i class="fa-solid fa-sun" id="sunIconMobile"></i>
@@ -248,6 +331,9 @@
 
           <div class="mt-8 flex flex-wrap justify-center md:justify-start gap-4">
             <a href="#projects" class="inline-block px-8 py-3 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition-colors">View My Work</a>
+            <a href="https://drive.google.com/file/d/13N1bfgDp2Oh0KbIF_mTYLExdpvFo0y7C/view?usp=sharing" target="_blank" rel="noopener noreferrer" class="inline-block px-8 py-3 bg-gray-900 dark:bg-gray-700 text-white rounded-lg font-medium hover:bg-gray-800 transition-colors">
+    <i class="fa-solid fa-file-arrow-down mr-2"></i>Download CV
+  </a>
             <a href="#contact" class="inline-block px-8 py-3 border border-purple-600 text-purple-600 dark:text-purple-400 rounded-lg font-medium hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors">Let's Talk</a>
           </div>
         </div>
@@ -301,7 +387,7 @@
         <h2 class="text-4xl font-bold text-purple-700 dark:text-purple-400 mb-4 flex items-center justify-center gap-3">
           <i class="fa-solid fa-user"></i> About Me
         </h2>
-        <p class="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">Backend engineer focused on reliability, APIs, auth, and cloud deployment.</p>
+        <p class="text-gray-700 dark:text-gray-300 max-w-2xl mx-auto">Backend engineer focused on reliability, APIs, auth, and cloud deployment.</p>
       </div>
 
       <!-- Tabs -->
@@ -311,9 +397,6 @@
         </button>
         <button data-tab="skills" onclick="setActiveTab('skills')" class="tab-btn px-5 py-2.5 rounded-lg font-medium transition-colors flex items-center gap-2 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:border-purple-400">
           <i class="fa-solid fa-code text-purple-600"></i> Skills
-        </button>
-        <button data-tab="experience" onclick="setActiveTab('experience')" class="tab-btn px-5 py-2.5 rounded-lg font-medium transition-colors flex items-center gap-2 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:border-purple-400">
-          <i class="fa-solid fa-briefcase text-purple-600"></i> Experience
         </button>
         <button data-tab="education" onclick="setActiveTab('education')" class="tab-btn px-5 py-2.5 rounded-lg font-medium transition-colors flex items-center gap-2 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:border-purple-400">
           <i class="fa-solid fa-graduation-cap text-purple-600"></i> Education
@@ -380,17 +463,6 @@
             </div>
           </div>
         </div>
-
-        <!-- Experience -->
-        <div id="tab-experience" class="tab-content hidden">
-          <h3 class="text-2xl font-bold text-purple-700 dark:text-purple-400 mb-8">Professional Experience</h3>
-          <div class="space-y-4" id="timelineContainer"></div>
-          <div class="mt-12 text-center">
-            <p class="text-gray-700 dark:text-gray-300 mb-4">Want to see how I build real applications?</p>
-            <a href="https://github.com/millyanne93" target="_blank" rel="noopener noreferrer" class="inline-block px-6 py-3 rounded-lg bg-purple-600 text-white font-medium hover:bg-purple-700 transition-colors">View My GitHub →</a>
-          </div>
-        </div>
-
         <!-- Education -->
         <div id="tab-education" class="tab-content hidden">
           <h3 class="text-2xl font-bold text-purple-700 dark:text-purple-400 mb-8">Education & Certifications</h3>
@@ -424,12 +496,8 @@
                 <p class="text-sm text-gray-600 dark:text-gray-400">April 2025</p>
               </div>
               <div class="border-l-4 border-purple-500 pl-4 py-3 bg-purple-50 dark:bg-purple-900/20 rounded-r-lg">
-                <h4 class="font-bold text-gray-900 dark:text-white">Kubernetes Administrator (CKA)</h4>
-                <p class="text-sm text-gray-600 dark:text-gray-400">2026 (In Progress)</p>
-              </div>
-              <div class="border-l-4 border-purple-500 pl-4 py-3 bg-purple-50 dark:bg-purple-900/20 rounded-r-lg">
-                <h4 class="font-bold text-gray-900 dark:text-white">Terraform Associate</h4>
-                <p class="text-sm text-gray-600 dark:text-gray-400">2026 (Planned)</p>
+                <h4 class="font-bold text-gray-900 dark:text-white">AWS AI Practitioner</h4>
+                <p class="text-sm text-gray-600 dark:text-gray-400">2026 </p>
               </div>
               <div class="border-l-4 border-purple-500 pl-4 py-3 bg-purple-50 dark:bg-purple-900/20 rounded-r-lg">
                 <h4 class="font-bold text-gray-900 dark:text-white">Project Management Fundamentals</h4>
@@ -441,6 +509,27 @@
 
       </div>
     </div>
+  <!-- ============================================
+     EXPERIENCE
+     ============================================ -->
+  <section id="experience" class="min-h-screen py-16 bg-gray-50 dark:bg-gray-800">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="text-center mb-12">
+        <h2 class="text-4xl font-bold text-purple-700 dark:text-purple-400 mb-4 flex items-center justify-center gap-3">
+          <i class="fa-solid fa-briefcase"></i> Experience
+        </h2>
+        <p class="text-gray-700 dark:text-gray-300 max-w-2xl mx-auto">My professional journey. </p>
+      </div>
+
+      <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 p-8">
+        <div class="space-y-4" id="timelineContainer"></div>
+      </div>
+
+      <div class="mt-12 text-center">
+        <p class="text-gray-700 dark:text-gray-300 mb-4">Want to see how I build real applications?</p>
+        <a href="https://github.com/millyanne93" target="_blank" rel="noopener noreferrer" class="inline-block px-6 py-3 rounded-lg bg-purple-600 text-white font-medium hover:bg-purple-700 transition-colors">View My GitHub →</a>
+      </div>
+    </div>
   </section>
 
   <!-- ============================================
@@ -450,7 +539,7 @@
     <div class="max-w-4xl mx-auto px-6">
       <div class="text-center mb-12">
         <h2 class="text-4xl font-bold text-purple-700 dark:text-purple-400 mb-3">Projects</h2>
-        <p class="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">Three projects, three different starting points — a self-directed infrastructure build, an academic capstone, and a tool built from a real request.</p>
+        <p class="text-gray-700 dark:text-gray-300 max-w-2xl mx-auto">From idea to deployment, projects i've built.</p>
       </div>
 
       <div class="space-y-8">
@@ -465,7 +554,7 @@
 
           <div class="mb-4">
             <h4 class="text-xs font-semibold text-purple-700 dark:text-purple-400 uppercase tracking-wide mb-1">Problem</h4>
-            <p class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">Self-directed project, not a client or business need. I wanted hands-on experience deploying a real application to production-grade cloud infrastructure — Kubernetes, AWS, Docker, and Terraform — instead of only reading about them.</p>
+            <p class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">Self-directed project, not a client or business need. I wanted hands-on experience deploying a real application to production-grade cloud infrastructure — Kubernetes, AWS, Docker, and Terraform, instead of only reading about them.</p>
           </div>
           <div class="mb-4">
             <h4 class="text-xs font-semibold text-purple-700 dark:text-purple-400 uppercase tracking-wide mb-1">What I Did</h4>
@@ -477,7 +566,7 @@
           </div>
           <div class="mb-4">
             <h4 class="text-xs font-semibold text-purple-700 dark:text-purple-400 uppercase tracking-wide mb-1">Learnings</h4>
-            <p class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">Database passwords generated dynamically by Terraform changed on every terraform apply — I'd use AWS Secrets Manager instead. I also got billed after terraform destroy because EBS volumes persisted; I'd now add explicit lifecycle rules to ensure storage is destroyed with the rest of the stack. I'd also set up monitoring and logging from the start rather than leaving it for later.</p>
+            <p class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">Database passwords generated dynamically by Terraform changed on every terraform apply, I'd use AWS Secrets Manager instead. I also got billed after terraform destroy because EBS volumes persisted; I'd now add explicit lifecycle rules to ensure storage is destroyed with the rest of the stack. I'd also set up monitoring and logging from the start rather than leaving it for later.</p>
           </div>
 
           <div class="flex flex-wrap gap-2 my-6">
@@ -505,7 +594,7 @@
 
           <div class="mb-4">
             <h4 class="text-xs font-semibold text-purple-700 dark:text-purple-400 uppercase tracking-wide mb-1">Problem</h4>
-            <p class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">Graduation project for my ALX Backend Specialization. Students often struggle to find practice questions matched to their actual level of understanding — most platforms either give generic questions or adapt using metrics too simple to capture real gaps in knowledge. I wanted to explore whether AI could generate questions targeted at a student's specific weaknesses.</p>
+            <p class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">Graduation project for my ALX Backend Specialization. Students often struggle to find practice questions matched to their actual level of understanding, most platforms either give generic questions or adapt using metrics too simple to capture real gaps in knowledge. I wanted to explore whether AI could generate questions targeted at a student's specific weaknesses.</p>
           </div>
           <div class="mb-4">
             <h4 class="text-xs font-semibold text-purple-700 dark:text-purple-400 uppercase tracking-wide mb-1">What I Did</h4>
@@ -517,7 +606,7 @@
           </div>
           <div class="mb-4">
             <h4 class="text-xs font-semibold text-purple-700 dark:text-purple-400 uppercase tracking-wide mb-1">Learnings</h4>
-            <p class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">I embedded Gemini API calls directly into the main backend — when Google updated the API, the integration broke and I had to chase changes across the codebase. I'd decouple AI calls into their own microservice next time, so it's easier to update and test in isolation. I also hit Gemini's rate limits under load when requesting 20-30 questions at once, and should have designed around that constraint earlier instead of discovering it live. I built breadth before deployability — I'd aim for a deployable MVP first instead.</p>
+            <p class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">I embedded Gemini API calls directly into the main backend, when Google updated the API, the integration broke and I had to chase changes across the codebase. I'd decouple AI calls into their own microservice next time, so it's easier to update and test in isolation. I also hit Gemini's rate limits under load when requesting 20-30 questions at once, and should have designed around that constraint earlier instead of discovering it live. I built breadth before deployability — I'd aim for a deployable MVP first instead.</p>
           </div>
 
           <div class="flex flex-wrap gap-2 my-6">
@@ -541,7 +630,7 @@
 
           <div class="mb-4">
             <h4 class="text-xs font-semibold text-purple-700 dark:text-purple-400 uppercase tracking-wide mb-1">Problem</h4>
-            <p class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">Someone in a group chat asked if a tool existed for tracking business equipment. Small businesses often rely on spreadsheets or paper logs, while enterprise tracking tools are too expensive and complex for their scale. Trackr fills that middle ground — simple, affordable equipment tracking for small businesses.</p>
+            <p class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">Someone in a group chat asked if a tool existed for tracking business equipment. Small businesses often rely on spreadsheets or paper logs, while enterprise tracking tools are too expensive and complex for their scale. Trackr fills that middle ground, simple, affordable equipment tracking for small businesses.</p>
           </div>
           <div class="mb-4">
             <h4 class="text-xs font-semibold text-purple-700 dark:text-purple-400 uppercase tracking-wide mb-1">What I Did</h4>
@@ -549,11 +638,11 @@
           </div>
           <div class="mb-4">
             <h4 class="text-xs font-semibold text-purple-700 dark:text-purple-400 uppercase tracking-wide mb-1">Result</h4>
-            <p class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">Fully deployed and publicly accessible. No active production users yet, but the live demo is verifiable — anyone can visit and use it directly, unlike PlanIt or EduAdapt.</p>
+            <p class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">Fully deployed and publicly accessible. No active production users yet, but the live demo is verifiable, anyone can visit and use it directly, unlike PlanIt or EduAdapt.</p>
           </div>
           <div class="mb-4">
             <h4 class="text-xs font-semibold text-purple-700 dark:text-purple-400 uppercase tracking-wide mb-1">Learnings</h4>
-            <p class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">I wrote the dashboard before planning component structure, which led to a large, tightly coupled codebase that made bugs hard to trace — I'd design the frontend architecture before writing code next time. I also found a bug where new users hit an error because the history endpoint expected populated data and got an empty array; I'm fixing this by returning empty arrays instead of 404s, so the frontend can show a proper 'no history yet' state instead of failing.</p>
+            <p class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">I wrote the dashboard before planning component structure, which led to a large, tightly coupled codebase that made bugs hard to trace, I'd design the frontend architecture before writing code next time. I also found a bug where new users hit an error because the history endpoint expected populated data and got an empty array; I'm fixing this by returning empty arrays instead of 404s, so the frontend can show a proper 'no history yet' state instead of failing.</p>
           </div>
 
           <div class="flex flex-wrap gap-2 my-6">
@@ -572,11 +661,6 @@
             </a>
           </div>
         </div>
-
-      </div>
-
-      <div class="mt-16 text-center">
-        <a href="mailto:nmillyanne20@gmail.com?subject=Technical%20Interview" class="inline-block px-8 py-3 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition-colors">Email me to schedule a technical interview</a>
       </div>
     </div>
   </section>
@@ -590,24 +674,24 @@
 
     <a href="mailto:nmillyanne20@gmail.com?subject=Technical%20Interview" class="mb-12 inline-block px-8 py-3 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition-colors">Email me to schedule a technical interview</a>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full max-w-5xl">
-      <a href="https://www.linkedin.com/in/millyanne-wanjala-5365306b/" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center p-6 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-purple-400 dark:hover:border-purple-500 transition-colors text-center">
-        <i class="fa-brands fa-linkedin text-3xl mb-3 text-purple-600 dark:text-purple-400"></i>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full max-w-5xl">
+      <a href="https://www.linkedin.com/in/millyanne-wanjala-5365306b/" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center p-4 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-purple-400 dark:hover:border-purple-500 transition-colors text-center">
+        <i class="fa-brands fa-linkedin text-2xl mb-2 text-purple-600 dark:text-purple-400"></i>
         <h3 class="font-semibold text-gray-900 dark:text-white">LinkedIn</h3>
         <p class="text-sm text-gray-600 dark:text-gray-400 mt-1 break-all">Professional profile & experience</p>
       </a>
-      <a href="mailto:nmillyanne20@gmail.com?subject=Hello%20Millyanne" class="flex flex-col items-center p-6 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-purple-400 dark:hover:border-purple-500 transition-colors text-center">
-        <i class="fa-solid fa-envelope text-3xl mb-3 text-purple-600 dark:text-purple-400"></i>
+      <a href="mailto:nmillyanne20@gmail.com?subject=Hello%20Millyanne" class="flex flex-col items-center p-4 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-purple-400 dark:hover:border-purple-500 transition-colors text-center">
+        <i class="fa-solid fa-envelope text-2xl mb-2 text-purple-600 dark:text-purple-400"></i>
         <h3 class="font-semibold text-gray-900 dark:text-white">Email</h3>
         <p class="text-sm text-gray-600 dark:text-gray-400 mt-1 break-all">nmillyanne20@gmail.com</p>
       </a>
-      <a href="https://github.com/millyanne93" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center p-6 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-purple-400 dark:hover:border-purple-500 transition-colors text-center">
-        <i class="fa-brands fa-github text-3xl mb-3 text-purple-600 dark:text-purple-400"></i>
+      <a href="https://github.com/millyanne93" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center p-4 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-purple-400 dark:hover:border-purple-500 transition-colors text-center">
+        <i class="fa-brands fa-github text-2xl mb-2 text-purple-600 dark:text-purple-400"></i>
         <h3 class="font-semibold text-gray-900 dark:text-white">GitHub</h3>
         <p class="text-sm text-gray-600 dark:text-gray-400 mt-1 break-all">Code, projects & contributions</p>
       </a>
-      <a href="https://www.twitter.com/millyanne254" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center p-6 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-purple-400 dark:hover:border-purple-500 transition-colors text-center">
-        <i class="fa-brands fa-twitter text-3xl mb-3 text-purple-600 dark:text-purple-400"></i>
+      <a href="https://www.twitter.com/millyanne254" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center p-4 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-purple-400 dark:hover:border-purple-500 transition-colors text-center">
+        <i class="fa-brands fa-twitter text-2xl mb-2 text-purple-600 dark:text-purple-400"></i>
         <h3 class="font-semibold text-gray-900 dark:text-white">Twitter</h3>
         <p class="text-sm text-gray-600 dark:text-gray-400 mt-1 break-all">@millyanne254</p>
       </a>
@@ -618,8 +702,31 @@
       <p class="text-gray-500 dark:text-gray-400">Monday – Friday · 9 AM – 6 PM (GMT+3)</p>
       <p class="text-gray-500 dark:text-gray-400">Typical response time: within 24 hours</p>
     </div>
-  </section>
+  <!-- ============================================
+     UPDATES / CAPSTONE WORK
+     ============================================ -->
+  <section id="updates" class="py-16 bg-gray-50 dark:bg-gray-800">
+    <div class="max-w-4xl mx-auto px-6 text-center">
 
+      <h2 class="text-3xl font-bold text-purple-700 dark:text-purple-400 mb-3">
+        Updates & Capstone Work
+      </h2>
+
+      <p class="text-gray-600 dark:text-gray-400 mb-8">
+        Follow my latest engineering work, capstone projects, and technical experiments.
+      </p>
+
+      <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-10">
+
+        <i class="fa-solid fa-pen-nib text-3xl text-purple-400 mb-4"></i>
+
+        <p class="text-gray-600 dark:text-gray-400 leading-relaxed mb-6">
+          New technical write-ups coming soon.
+        </p>
+
+      </div>
+    </div>
+  </section>
   <!-- ============================================
        FOOTER
        ============================================ -->
@@ -693,14 +800,14 @@
     const experienceTimeline = [
       {
         year: "2026 - Present",
-        title: "Backend AI Engineering Intern",
+        title: "Backend Engineering Intern",
         company: "FlyRank AI",
-        description: "Building and maintaining backend infrastructure for a growing AI platform. Work spans API development, database migration, authentication, and data collection pipelines.",
+        description: "Building backend systems and AI-enabled workflows through practical engineering assignments involving APIs, databases, authentication, and data collection.",
         responsibilities: [
           "Built a CRUD API with Express and TypeScript, implementing input validation, error handling, and OpenAPI documentation served via Swagger UI",
           "Migrated the data layer from SQLite to PostgreSQL after identifying concurrency and scalability limitations, containerizing the full application stack with Docker and Docker Compose",
-          "Implemented secure authentication using Supabase Auth, with JWT-based protected routes, reusable middleware for token verification, and token blacklisting on logout",
-          "Designed and deployed a polite web scraper extracting structured data from 60+ pages, with local caching, automatic retry logic, and a run report summarizing success rates and errors",
+          "Implemented authentication using Supabase Auth, including JWT-based protected routes, reusable middleware for token verification, and a logout endpoint.",
+          "Built and tested a polite web scraper locally,extracting structured data from 60+ pages, with local caching, automatic retry logic, and a run report summarizing success rates and errors",
         ],
         icon: "fa-database",
       },

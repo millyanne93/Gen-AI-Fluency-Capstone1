@@ -1,7 +1,3 @@
-// netlify/functions/chat.ts
-// Netlify Function — proxies chat messages to the Gemini API.
-// The API key lives only here, server-side. It is never sent to the browser.
-
 import type { Handler } from "@netlify/functions";
 
 const SYSTEM_PROMPT = `You are Millyanne Wanjala's AI assistant, embedded on her portfolio website.
@@ -56,7 +52,7 @@ RULES:
 - Keep answers short: 2-4 sentences, friendly and professional.
 - Never make up projects, dates, or skills that are not listed above.`;
 
-const GEMINI_MODEL = "gemini-2.5-flash"; // confirm current free-tier model name in Google AI Studio before deploying
+const GEMINI_MODEL = "gemini-2.5-flash"; 
 
 export const handler: Handler = async (event) => {
   if (event.httpMethod !== "POST") {
